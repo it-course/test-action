@@ -6,10 +6,10 @@ runs:
   steps:
     - uses: actions/cache@v3
       with:
-        path: devrating.sqlite3
-        key: devrating.sqlite3-${{ github.run_id }}
+        path: ${{ github.action_path }}/devrating.sqlite3
+        key: devrating-${{ github.run_id }}
         restore-keys: |
-          devrating.sqlite3
+          devrating
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
@@ -28,8 +28,8 @@ runs:
     - uses: actions/upload-artifact@v3
       if: github.event.pull_request.merged
       with:
-        name: devrating.sqlite3
-        path: devrating.sqlite3
+        name: devrating
+        path: ${{ github.action_path }}/devrating.sqlite3
 branding:
   icon: git-pull-request
   color: blue
