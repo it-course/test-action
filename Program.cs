@@ -14,7 +14,7 @@ logger.LogInformation(
     new EventId(1511174),
     Assembly.GetExecutingAssembly().GetName().Version?.ToString());
 
-if (args.Length < 7)
+if (args.Length < 6)
 {
     logger.LogInformation(
         new EventId(1342447),
