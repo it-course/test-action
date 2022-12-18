@@ -8,13 +8,7 @@ runs:
       with:
         path: devrating.sqlite3
         key: devrating.sqlite3
-    - uses: actions/upload-artifact@v3
-      if: github.event.pull_request.merged == 'true'
-      with:
-        name: devrating.sqlite3
-        path: devrating.sqlite3
     - uses: actions/checkout@v3
-      if: github.event.pull_request.merged != 'true'
       with:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.sha }}
@@ -26,9 +20,14 @@ runs:
         '${{ github.base_ref }}' `
         '${{ github.event.pull_request.number }}' `
         '${{ github.event.pull_request.base.sha }}' `
-        '${{ github.event.pull_request.head.sha }}'
-      if: github.event.pull_request.merged != 'true'
+        '${{ github.event.pull_request.head.sha }}' `
+        '${{ github.event.pull_request.merged }}' 
       shell: pwsh
+    - uses: actions/upload-artifact@v3
+      if: github.event.pull_request.merged
+      with:
+        name: devrating.sqlite3
+        path: devrating.sqlite3
 branding:
   icon: git-pull-request
   color: blue

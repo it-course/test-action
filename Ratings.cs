@@ -88,13 +88,12 @@ public sealed class Ratings
                 database.Instance().Create();
             }
 
-            var w = NewWork(diff);
-
             return database
                 .Entities()
                 .Ratings()
                 .GetOperation()
-                .RatingOf(w.Author().Id())
+                .RatingOf(
+                    NewWork(diff).Author().Id())
                 .Value();
         }
         finally
