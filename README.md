@@ -30,7 +30,7 @@ name: Update PR labels
 on:
   pull_request:
     branches: [ master, main ]
-    types: [ opened, synchronize ]
+    types: [ opened, synchronize, closed ]
 jobs:
   pr-size:
     runs-on: ubuntu-latest

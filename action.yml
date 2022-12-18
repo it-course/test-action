@@ -4,14 +4,20 @@ author: victorx64
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-        ref: ${{ github.event.pull_request.head.sha }}
     - uses: actions/cache@v3
       with:
         path: devrating.sqlite3
         key: devrating.sqlite3
+    - uses: actions/upload-artifact@v3
+      if: github.event.pull_request.merged == 'true'
+      with:
+        name: devrating.sqlite3
+        path: devrating.sqlite3
+    - uses: actions/checkout@v3
+      if: github.event.pull_request.merged != 'true'
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.sha }}
     - run: |
         dotnet run --project ${{ github.action_path }}/pull-request-label.csproj -- `
         '${{ github.repository }}' `
@@ -21,6 +27,7 @@ runs:
         '${{ github.event.pull_request.number }}' `
         '${{ github.event.pull_request.base.sha }}' `
         '${{ github.event.pull_request.head.sha }}'
+      if: github.event.pull_request.merged != 'true'
       shell: pwsh
 branding:
   icon: git-pull-request
