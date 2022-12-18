@@ -7,7 +7,9 @@ runs:
     - uses: actions/cache@v3
       with:
         path: devrating.sqlite3
-        key: devrating.sqlite3
+        key: devrating.sqlite3-${{ github.run_id }}
+        restore-keys: |
+          devrating.sqlite3
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0

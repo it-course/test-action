@@ -58,25 +58,25 @@ public sealed class GitHubClient
         return (
             await github.Run(
                 new Query()
-                    .Search(
-                        q,
-                        SearchType.Issue,
-                        100)
-                    .Nodes
-                    .OfType<Octokit.GraphQL.Model.PullRequest>()
-                    .Select(
-                        pr => new GitDiff(
-                            loggerFactory,
-                            new GitProcess(loggerFactory, "git", $"rev-parse {pr.MergeCommit.Oid}~", workspace).Output().First(),
-                            new GitProcess(loggerFactory, "git", $"rev-parse {pr.MergeCommit.Oid}", workspace).Output().First(),
-                            new GitLastMajorUpdateTag(loggerFactory, workspace, pr.MergeCommit.Oid).Sha(),
-                            workspace,
-                            repository,
-                            pr.Url,
-                            owner,
-                            pr.MergedAt!.Value))
-                    .Compile()))
-            .Reverse();
+                .Search(
+                    q,
+                    SearchType.Issue,
+                    100)
+                .Nodes
+                .OfType<Octokit.GraphQL.Model.PullRequest>()
+                .Select(
+                    pr => new GitDiff(
+                        loggerFactory,
+                        new GitProcess(loggerFactory, "git", $"rev-parse {pr.MergeCommit.Oid}~", workspace).Output().First(),
+                        new GitProcess(loggerFactory, "git", $"rev-parse {pr.MergeCommit.Oid}", workspace).Output().First(),
+                        new GitLastMajorUpdateTag(loggerFactory, workspace, pr.MergeCommit.Oid).Sha(),
+                        workspace,
+                        repository,
+                        pr.Url,
+                        owner,
+                        pr.MergedAt!.Value))
+                .Compile()))
+        .Reverse();
     }
 
     public async Task UpdatePrLabels(double rating)

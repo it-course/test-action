@@ -93,7 +93,9 @@ public sealed class Ratings
                 .Ratings()
                 .GetOperation()
                 .RatingOf(
-                    NewWork(diff).Author().Id())
+                    NewWork(diff)
+                    .Author()
+                    .Id())
                 .Value();
         }
         finally
