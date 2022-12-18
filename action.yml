@@ -1,0 +1,22 @@
+name: Pull request size and stability labels
+description: This action marks PRs with size and estimated stability 
+author: victorx64
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.merge_commit_sha }}
+    - run: |
+        dotnet run --project ${{ github.action_path }}/pull-request-label.csproj -- `
+        '${{ github.repository }}' `
+        '${{ github.token }}' `
+        '${{ github.workspace }}' `
+        '${{ github.base_ref }}' `
+        '${{ github.event.pull_request.number }}' `
+        '${{ github.event.pull_request.merge_commit_sha }}'
+      shell: pwsh
+branding:
+  icon: git-pull-request
+  color: blue
