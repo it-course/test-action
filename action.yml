@@ -7,7 +7,7 @@ runs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
-        ref: ${{ github.event.pull_request.merge_commit_sha }}
+        ref: ${{ github.event.pull_request.head.sha }}
     - run: |
         dotnet run --project ${{ github.action_path }}/pull-request-label.csproj -- `
         '${{ github.repository }}' `
@@ -15,7 +15,8 @@ runs:
         '${{ github.workspace }}' `
         '${{ github.base_ref }}' `
         '${{ github.event.pull_request.number }}' `
-        '${{ github.event.pull_request.merge_commit_sha }}'
+        '${{ github.event.pull_request.base.sha }}' `
+        '${{ github.event.pull_request.head.sha }}'
       shell: pwsh
 branding:
   icon: git-pull-request

@@ -74,16 +74,7 @@ public sealed class Ratings
                 database.Instance().Create();
             }
 
-            Work w;
-
-            if (!diff.PresentIn(database.Entities().Works()))
-            {
-                w = NewWork(diff);
-            }
-            else
-            {
-                w = diff.RelatedWork(database.Entities().Works());
-            }
+            var w = NewWork(diff);
 
             return database
                 .Entities()

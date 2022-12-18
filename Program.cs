@@ -14,11 +14,9 @@ logger.LogInformation(
     new EventId(1511174),
     Assembly.GetExecutingAssembly().GetName().Version?.ToString());
 
-if (args.Length < 6)
+if (args.Length < 7)
 {
-    logger.LogInformation(
-        new EventId(1342447),
-        "Not enough arguments. Probably mergeCommitSha is empty");
+    logger.LogInformation(new EventId(1342447), "Not enough arguments");
     return;
 }
 
@@ -43,7 +41,7 @@ await gh.UpdatePrLabels(
                 new GitProcess(
                     loggerFactory,
                     "git",
-                    $"rev-parse {args[5]}~",
+                    $"rev-parse {args[5]}",
                     args[2])
                 .Output()
                 .First(),
@@ -51,13 +49,13 @@ await gh.UpdatePrLabels(
                 new GitProcess(
                     loggerFactory,
                     "git",
-                    $"rev-parse {args[5]}",
+                    $"rev-parse {args[6]}",
                     args[2])
                 .Output()
                 .First(),
             since:
                 new GitLastMajorUpdateTag(
-                    loggerFactory, args[2], args[5])
+                    loggerFactory, args[2], args[6])
                 .Sha(),
             repository: args[2],
             key: args[0].Split('/')[1],
