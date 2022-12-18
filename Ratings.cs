@@ -69,6 +69,10 @@ public sealed class Ratings
     {
         var logger = loggerFactory.CreateLogger<Ratings>();
 
+        logger.LogInformation(
+            new EventId(1146241),
+            $"Calculating updated rating for diff: `{diff.ToJson()}`");
+
         database.Instance().Connection().Open();
 
         using var transaction = database.Instance().Connection().BeginTransaction();
@@ -90,11 +94,7 @@ public sealed class Ratings
                 .Entities()
                 .Ratings()
                 .GetOperation()
-                .RatingsOf(w.Id())
-                .First(r => r
-                    .Author()
-                    .Id()
-                    .Equals(w.Author().Id()))
+                .RatingOf(w.Author().Id())
                 .Value();
         }
         finally
