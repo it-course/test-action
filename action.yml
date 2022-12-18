@@ -4,12 +4,16 @@ author: victorx64
 runs:
   using: "composite"
   steps:
-    - uses: actions/cache@v3
+    # - uses: actions/cache@v3
+    #   with:
+    #     path: devrating.sqlite3
+    #     key: devrating.sqlite3-${{ github.run_id }}
+    #     restore-keys: |
+    #       devrating.sqlite3
+    - uses: actions/download-artifact@v3
       with:
+        name: devrating.sqlite3
         path: devrating.sqlite3
-        key: devrating.sqlite3-${{ github.run_id }}
-        restore-keys: |
-          devrating.sqlite3
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
