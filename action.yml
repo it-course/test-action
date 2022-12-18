@@ -1,5 +1,5 @@
 name: Pull request size and stability labels
-description: This action marks PRs with size and estimated stability 
+description: This action marks PRs with size and estimated stability labels
 author: victorx64
 runs:
   using: "composite"
@@ -8,6 +8,10 @@ runs:
       with:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.sha }}
+    - uses: actions/cache@v3
+      with:
+        path: devrating.sqlite3
+        key: devrating.sqlite3
     - run: |
         dotnet run --project ${{ github.action_path }}/pull-request-label.csproj -- `
         '${{ github.repository }}' `

@@ -20,7 +20,7 @@ public sealed class Ratings
 
     public void Apply(Diff diff)
     {
-        var logger = loggerFactory.CreateLogger<Program>();
+        var logger = loggerFactory.CreateLogger<Ratings>();
 
         logger.LogInformation(
             new EventId(1461486),
@@ -34,6 +34,10 @@ public sealed class Ratings
         {
             if (!database.Instance().Present())
             {
+                logger.LogInformation(
+                    new EventId(1824416),
+                    $"The DB is not present. Creating");
+
                 database.Instance().Create();
             }
 
@@ -63,6 +67,8 @@ public sealed class Ratings
 
     public double Rating(Diff diff)
     {
+        var logger = loggerFactory.CreateLogger<Ratings>();
+
         database.Instance().Connection().Open();
 
         using var transaction = database.Instance().Connection().BeginTransaction();
@@ -71,6 +77,10 @@ public sealed class Ratings
         {
             if (!database.Instance().Present())
             {
+                logger.LogInformation(
+                    new EventId(1824416),
+                    $"The DB is not present. Creating");
+
                 database.Instance().Create();
             }
 

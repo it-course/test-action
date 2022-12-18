@@ -51,7 +51,7 @@ public sealed class GitHubClient
     {
         var q = $"repo:{owner}/{repository} base:{baseBranch} type:pr merged:>{DateTimeOffset.UtcNow.AddDays(-90):O} sort:updated-desc";
 
-        loggerFactory.CreateLogger<Program>().LogInformation(
+        loggerFactory.CreateLogger<GitHubClient>().LogInformation(
             new EventId(1880477),
             $"Last merged PRs search query: `{q}`");
 
