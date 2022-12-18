@@ -20,6 +20,12 @@ public sealed class Ratings
 
     public void Apply(Diff diff)
     {
+        var logger = loggerFactory.CreateLogger<Program>();
+
+        logger.LogInformation(
+            new EventId(1461486),
+            $"Applying diff: `{diff.ToJson()}`");
+
         database.Instance().Connection().Open();
 
         using var transaction = database.Instance().Connection().BeginTransaction();
@@ -33,6 +39,9 @@ public sealed class Ratings
 
             if (diff.PresentIn(database.Entities().Works()))
             {
+                logger.LogInformation(
+                    new EventId(1435402),
+                    $"The diff is already applied. Skipping");
                 return;
             }
 
