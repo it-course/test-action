@@ -116,15 +116,16 @@ public sealed class Ratings
                 database.Instance().Create();
             }
 
+            var w = NewWork(diff);
+
             return database
                 .Entities()
                 .Ratings()
                 .GetOperation()
-                .RatingOf(
-                    NewWork(diff)
-                    .Author()
-                    .Id())
-                .Value();
+                .RatingsOf(w.Id())
+                .FirstOrDefault(
+                    r => r.Author().Id().Equals(w.Author().Id()))
+                ?.Value() ?? formula.DefaultRating();
         }
         finally
         {

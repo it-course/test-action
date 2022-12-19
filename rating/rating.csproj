@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <ProjectReference Include="..\core\core.csproj" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,14 +11,5 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="devrating.factory" Version="22.8.0" />
-    <PackageReference Include="devrating.git" Version="22.8.0" />
-    <PackageReference Include="devrating.sqlite" Version="22.8.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
-    <PackageReference Include="Octokit" Version="4.0.3" />
-    <PackageReference Include="Octokit.GraphQL" Version="0.2.0-beta" />
-  </ItemGroup>
 
 </Project>
