@@ -13,7 +13,7 @@ runs:
         path: devrating.sqlite3
         key: devrating-sqlite3-${{ github.run_id }}
         restore-keys: |
-          devratin-sqlite3-
+          devrating-sqlite3-
     - run: |
         dotnet run --project ${{ github.action_path }}/pull-request-label.csproj -- `
         '${{ github.repository }}' `
