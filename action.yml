@@ -11,9 +11,9 @@ runs:
     - uses: actions/cache@v3
       with:
         path: devrating.sqlite3
-        key: devrating.sqlite3-${{ github.run_id }}
+        key: devrating-sqlite3-${{ github.run_id }}
         restore-keys: |
-          devrating.sqlite3
+          devratin-sqlite3-
     - run: |
         dotnet run --project ${{ github.action_path }}/pull-request-label.csproj -- `
         '${{ github.repository }}' `
@@ -28,7 +28,7 @@ runs:
     - uses: actions/upload-artifact@v3
       if: github.event.pull_request.merged
       with:
-        name: devrating.sqlite3
+        name: devrating-sqlite3
         path: devrating.sqlite3
 branding:
   icon: git-pull-request
