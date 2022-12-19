@@ -33,7 +33,7 @@ on:
   push:
     branches: [ master, main ]
 jobs:
-  add-pr-labels:
+  update-pr-labels:
     runs-on: ubuntu-latest
     steps:
     - uses: victorx64/pr-label@v0

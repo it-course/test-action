@@ -20,27 +20,24 @@ var gh = new GitHubClient(
 
 await gh.UpdatePrLabels(
     new StabilityMetric(loggerFactory, args[7])
-    .Rating(
-        new GitDiff(
+    .ValueFor(
+        diff: new GitDiff(
             log: loggerFactory,
-            @base:
-                new GitProcess(
+            @base: new GitProcess(
                     log: loggerFactory,
                     filename: "git",
                     arguments: $"rev-parse {args[5]}",
                     directory: args[2])
                 .Output()
                 .First(),
-            commit:
-                new GitProcess(
+            commit: new GitProcess(
                     log: loggerFactory,
                     filename: "git",
                     arguments: $"rev-parse {args[6]}",
                     directory: args[2])
                 .Output()
                 .First(),
-            since:
-                new GitLastMajorUpdateTag(
+            since: new GitLastMajorUpdateTag(
                     loggerFactory: loggerFactory,
                     repository: args[2],
                     before: args[6])

@@ -94,7 +94,7 @@ public sealed class StabilityMetric
         }
     }
 
-    public double Rating(Diff diff)
+    public double ValueFor(Diff diff)
     {
         var logger = loggerFactory.CreateLogger<StabilityMetric>();
 
