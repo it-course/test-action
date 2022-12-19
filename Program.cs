@@ -8,9 +8,7 @@ var loggerFactory = LoggerFactory.Create(
         .AddFilter("System", LogLevel.Warning)
         .AddSystemdConsole());
 
-var logger = loggerFactory.CreateLogger<Program>();
-
-logger.LogInformation(
+loggerFactory.CreateLogger<Program>().LogInformation(
     new EventId(1511174),
     Assembly.GetExecutingAssembly().GetName().Version?.ToString());
 
@@ -20,14 +18,42 @@ var gh = new GitHubClient(
     workspace: args[2],
     baseBranch: args[3],
     ownerAndRepository: args[0],
-    number: int.Parse(args[4]));
+    prNumber: int.Parse(args[4]));
 
 var r = new Ratings(loggerFactory);
 
-
 foreach (var pr in await gh.RecentMergedPrs())
-    r.Apply(pr);
-
+    if (!r.IsCommitApplied(gh.Owner(), gh.Repository(), pr.Oid))
+        r.Apply(
+            new GitDiff(
+                log: loggerFactory,
+                @base:
+                    new GitProcess(
+                        loggerFactory,
+                        "git",
+                        $"rev-parse {pr.Oid}~",
+                        gh.Workspace())
+                    .Output()
+                    .First(),
+                commit:
+                    new GitProcess(
+                        loggerFactory,
+                        "git",
+                        $"rev-parse {pr.Oid}",
+                        gh.Workspace())
+                    .Output()
+                    .First(),
+                since:
+                    new GitLastMajorUpdateTag(
+                        loggerFactory,
+                        gh.Workspace(),
+                        pr.Oid)
+                    .Sha(),
+                repository: gh.Workspace(),
+                key: gh.Repository(),
+                link: pr.Url,
+                organization: gh.Owner(),
+                createdAt: pr.MergedAt!.Value));
 
 if (!bool.Parse(args[7]))
     await gh.UpdatePrLabels(
@@ -39,7 +65,7 @@ if (!bool.Parse(args[7]))
                         loggerFactory,
                         "git",
                         $"rev-parse {args[5]}",
-                        args[2])
+                        gh.Workspace())
                     .Output()
                     .First(),
                 commit:
@@ -47,15 +73,15 @@ if (!bool.Parse(args[7]))
                         loggerFactory,
                         "git",
                         $"rev-parse {args[6]}",
-                        args[2])
+                        gh.Workspace())
                     .Output()
                     .First(),
                 since:
                     new GitLastMajorUpdateTag(
-                        loggerFactory, args[2], args[6])
+                        loggerFactory, gh.Workspace(), args[6])
                     .Sha(),
-                repository: args[2],
-                key: args[0].Split('/')[1],
-                link: $"https://github.com/{args[0]}/pull/{int.Parse(args[4])}",
-                organization: args[0].Split('/')[0],
+                repository: gh.Workspace(),
+                key: gh.Repository(),
+                link: $"https://github.com/{gh.OwnerAndRepository()}/pull/{gh.PrNumber()}",
+                organization: gh.Owner(),
                 createdAt: DateTimeOffset.UtcNow)));

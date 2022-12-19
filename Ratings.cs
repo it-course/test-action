@@ -18,6 +18,34 @@ public sealed class Ratings
         this.loggerFactory = loggerFactory;
     }
 
+    public bool IsCommitApplied(string organization, string repository, string commit)
+    {
+        var logger = loggerFactory.CreateLogger<Ratings>();
+
+        database.Instance().Connection().Open();
+
+        using var transaction = database.Instance().Connection().BeginTransaction();
+
+        try
+        {
+            if (!database.Instance().Present())
+            {
+                logger.LogInformation(
+                    new EventId(1932471),
+                    $"The DB is not present. Creating");
+
+                database.Instance().Create();
+            }
+
+            return database.Entities().Works().ContainsOperation().Contains(organization, repository, commit);
+        }
+        finally
+        {
+            transaction.Rollback();
+            database.Instance().Connection().Close();
+        }
+    }
+
     public void Apply(Diff diff)
     {
         var logger = loggerFactory.CreateLogger<Ratings>();

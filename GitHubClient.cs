@@ -1,6 +1,4 @@
 using System.Reflection;
-using devrating.factory;
-using devrating.git;
 using Microsoft.Extensions.Logging;
 using Octokit;
 using Octokit.GraphQL;
@@ -10,9 +8,12 @@ public sealed class GitHubClient
 {
     private readonly Octokit.GraphQL.IConnection github;
     private readonly IGitHubClient githubRest;
+    private readonly string githubToken;
     private readonly ILoggerFactory loggerFactory;
     private readonly string workspace;
     private readonly string baseBranch;
+    private readonly string ownerAndRepository;
+    private readonly int number;
     private readonly string owner;
     private readonly string repository;
     private readonly SizeLabel sizeLabel;
@@ -24,16 +25,19 @@ public sealed class GitHubClient
         string workspace,
         string baseBranch,
         string ownerAndRepository,
-        int number)
+        int prNumber)
     {
         this.github = new Octokit.GraphQL.Connection(
             new Octokit.GraphQL.ProductHeaderValue(
                 Assembly.GetExecutingAssembly().GetName().Name,
                 Assembly.GetExecutingAssembly().GetName().Version!.ToString()),
             githubToken);
+        this.githubToken = githubToken;
         this.loggerFactory = log;
         this.workspace = workspace;
         this.baseBranch = baseBranch;
+        this.ownerAndRepository = ownerAndRepository;
+        this.number = prNumber;
         this.owner = ownerAndRepository.Split('/')[0];
         this.repository = ownerAndRepository.Split('/')[1];
         this.githubRest = new Octokit.GitHubClient(
@@ -43,11 +47,17 @@ public sealed class GitHubClient
         {
             Credentials = new Octokit.Credentials(githubToken)
         };
-        this.sizeLabel = new SizeLabel(githubRest, owner, repository, number);
-        this.stabilityLabel = new StabilityLabel(githubRest, owner, repository, number);
+        this.sizeLabel = new SizeLabel(githubRest, owner, repository, prNumber);
+        this.stabilityLabel = new StabilityLabel(githubRest, owner, repository, prNumber);
     }
 
-    public async Task<IEnumerable<Diff>> RecentMergedPrs()
+    public string Workspace() => workspace;
+    public string Owner() => owner;
+    public string Repository() => repository;
+    public string OwnerAndRepository() => ownerAndRepository;
+    public int PrNumber() => number;
+
+    public async Task<IEnumerable<PullRequestRecord>> RecentMergedPrs()
     {
         var q = $"repo:{owner}/{repository} base:{baseBranch} type:pr merged:>{DateTimeOffset.UtcNow.AddDays(-90):O} sort:updated-desc";
 
@@ -65,16 +75,10 @@ public sealed class GitHubClient
                 .Nodes
                 .OfType<Octokit.GraphQL.Model.PullRequest>()
                 .Select(
-                    pr => new GitDiff(
-                        loggerFactory,
-                        new GitProcess(loggerFactory, "git", $"rev-parse {pr.MergeCommit.Oid}~", workspace).Output().First(),
-                        new GitProcess(loggerFactory, "git", $"rev-parse {pr.MergeCommit.Oid}", workspace).Output().First(),
-                        new GitLastMajorUpdateTag(loggerFactory, workspace, pr.MergeCommit.Oid).Sha(),
-                        workspace,
-                        repository,
-                        pr.Url,
-                        owner,
-                        pr.MergedAt!.Value))
+                    pr => new PullRequestRecord(
+                        pr.MergeCommit.Oid,
+                        pr.MergedAt,
+                        pr.Url))
                 .Compile()))
         .Reverse();
     }
@@ -84,4 +88,6 @@ public sealed class GitHubClient
         await sizeLabel.Update();
         await stabilityLabel.Update(rating);
     }
+
+    public record PullRequestRecord(string Oid, DateTimeOffset? MergedAt, string Url);
 }
