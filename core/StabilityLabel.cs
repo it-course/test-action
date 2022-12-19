@@ -34,22 +34,16 @@ public sealed class StabilityLabel
         var issueLabels = await github.Issue.Labels.GetAllForIssue(owner, repository, number);
 
         foreach (var label in labels)
-        {
             if (label != labels[rank] &&
                 issueLabels.Any(l => l.Name.Equals(label.Name, StringComparison.OrdinalIgnoreCase)))
-            {
                 await github.Issue.Labels.RemoveFromIssue(owner, repository, number, label.Name);
-            }
-        }
 
         if (!issueLabels.Any(l => l.Equals(labels[rank])))
-        {
             await github.Issue.Labels.AddToIssue(
                 owner,
                 repository,
                 number,
                 new[] { labels[rank].Name });
-        }
     }
 
     private async Task CreateLabelsForRepository()
@@ -57,12 +51,8 @@ public sealed class StabilityLabel
         var repositoryLabels = await github.Issue.Labels.GetAllForRepository(owner, repository);
 
         foreach (var label in labels)
-        {
             if (!repositoryLabels.Any(l => l.Name.Equals(label.Name, StringComparison.OrdinalIgnoreCase)))
-            {
                 await github.Issue.Labels.Create(owner, repository, label);
-            }
-        }
     }
 
     private double RatingPercentile(double a)

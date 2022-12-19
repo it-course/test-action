@@ -1,51 +1,31 @@
 using System.Reflection;
 using Microsoft.Extensions.Logging;
-using Octokit;
 using Octokit.GraphQL;
 using Octokit.GraphQL.Model;
 
 public sealed class GitHubClient
 {
-    private readonly Octokit.GraphQL.IConnection github;
-    private readonly IGitHubClient githubRest;
     private readonly ILoggerFactory loggerFactory;
-    private readonly string workspace;
+    private readonly string githubToken;
     private readonly string baseBranch;
-    private readonly string ownerAndRepository;
     private readonly string owner;
     private readonly string repository;
+
+    public string Owner() => owner;
+    public string Repository() => repository;
 
     public GitHubClient(
         string githubToken,
         ILoggerFactory logger,
-        string workspace,
         string baseBranch,
         string ownerAndRepository)
     {
-        this.github = new Octokit.GraphQL.Connection(
-            new Octokit.GraphQL.ProductHeaderValue(
-                Assembly.GetExecutingAssembly().GetName().Name,
-                Assembly.GetExecutingAssembly().GetName().Version!.ToString()),
-            githubToken);
+        this.githubToken = githubToken;
         this.loggerFactory = logger;
-        this.workspace = workspace;
         this.baseBranch = baseBranch;
-        this.ownerAndRepository = ownerAndRepository;
         this.owner = ownerAndRepository.Split('/')[0];
         this.repository = ownerAndRepository.Split('/')[1];
-        this.githubRest = new Octokit.GitHubClient(
-            new Octokit.ProductHeaderValue(
-                Assembly.GetExecutingAssembly().GetName().Name,
-                Assembly.GetExecutingAssembly().GetName().Version!.ToString()))
-        {
-            Credentials = new Octokit.Credentials(githubToken)
-        };
     }
-
-    public string Workspace() => workspace;
-    public string Owner() => owner;
-    public string Repository() => repository;
-    public string OwnerAndRepository() => ownerAndRepository;
 
     public async Task<IEnumerable<PullRequestRecord>> RecentMergedPrs()
     {
@@ -56,7 +36,12 @@ public sealed class GitHubClient
             $"Last merged PRs search query: `{q}`");
 
         return (
-            await github.Run(
+            await new Octokit.GraphQL.Connection(
+                new Octokit.GraphQL.ProductHeaderValue(
+                    Assembly.GetExecutingAssembly().GetName().Name,
+                    Assembly.GetExecutingAssembly().GetName().Version!.ToString()),
+                githubToken)
+            .Run(
                 new Query()
                 .Search(
                     q,
@@ -77,6 +62,14 @@ public sealed class GitHubClient
         double rating,
         int prNumber)
     {
+        var githubRest = new Octokit.GitHubClient(
+           new Octokit.ProductHeaderValue(
+               Assembly.GetExecutingAssembly().GetName().Name,
+               Assembly.GetExecutingAssembly().GetName().Version!.ToString()))
+        {
+            Credentials = new Octokit.Credentials(githubToken)
+        };
+
         await new SizeLabel(githubRest, owner, repository, prNumber).Update();
         await new StabilityLabel(githubRest, owner, repository, prNumber).Update(rating);
     }

@@ -29,12 +29,11 @@ Throw this to `.github/workflows/pr-label.yml` in your repo:
 name: Update PR labels
 on:
   pull_request:
-    branches: [ master, main ]
     types: [ opened, synchronize ]
   push:
     branches: [ master, main ]
 jobs:
-  update-pr-labels:
+  add-pr-labels:
     runs-on: ubuntu-latest
     steps:
     - uses: victorx64/pr-label@v0

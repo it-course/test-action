@@ -15,39 +15,39 @@ loggerFactory.CreateLogger<Program>().LogInformation(
 var gh = new GitHubClient(
     githubToken: args[1],
     logger: loggerFactory,
-    workspace: args[2],
     baseBranch: args[3],
     ownerAndRepository: args[0]);
 
-var m = new StabilityMetric(loggerFactory, args[7]);
-
 await gh.UpdatePrLabels(
-    m.Rating(
+    new StabilityMetric(loggerFactory, args[7])
+    .Rating(
         new GitDiff(
             log: loggerFactory,
             @base:
                 new GitProcess(
-                    loggerFactory,
-                    "git",
-                    $"rev-parse {args[5]}",
-                    gh.Workspace())
+                    log: loggerFactory,
+                    filename: "git",
+                    arguments: $"rev-parse {args[5]}",
+                    directory: args[2])
                 .Output()
                 .First(),
             commit:
                 new GitProcess(
-                    loggerFactory,
-                    "git",
-                    $"rev-parse {args[6]}",
-                    gh.Workspace())
+                    log: loggerFactory,
+                    filename: "git",
+                    arguments: $"rev-parse {args[6]}",
+                    directory: args[2])
                 .Output()
                 .First(),
             since:
                 new GitLastMajorUpdateTag(
-                    loggerFactory, gh.Workspace(), args[6])
+                    loggerFactory: loggerFactory,
+                    repository: args[2],
+                    before: args[6])
                 .Sha(),
-            repository: gh.Workspace(),
+            repository: args[2],
             key: gh.Repository(),
-            link: $"https://github.com/{gh.OwnerAndRepository()}/pull/{args[4]}",
+            link: $"{gh.Owner()}/{gh.Repository()}#{args[4]}",
             organization: gh.Owner(),
             createdAt: DateTimeOffset.UtcNow)),
     int.Parse(args[4]));

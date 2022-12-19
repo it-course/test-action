@@ -15,7 +15,6 @@ loggerFactory.CreateLogger<Program>().LogInformation(
 var gh = new GitHubClient(
     githubToken: args[1],
     logger: loggerFactory,
-    workspace: args[2],
     baseBranch: args[3],
     ownerAndRepository: args[0]);
 
@@ -28,27 +27,27 @@ foreach (var pr in await gh.RecentMergedPrs())
                 log: loggerFactory,
                 @base:
                     new GitProcess(
-                        loggerFactory,
-                        "git",
-                        $"rev-parse {pr.Oid}~",
-                        gh.Workspace())
+                        log: loggerFactory,
+                        filename: "git",
+                        arguments: $"rev-parse {pr.Oid}~",
+                        directory: args[2])
                     .Output()
                     .First(),
                 commit:
                     new GitProcess(
-                        loggerFactory,
-                        "git",
-                        $"rev-parse {pr.Oid}",
-                        gh.Workspace())
+                        log: loggerFactory,
+                        filename: "git",
+                        arguments: $"rev-parse {pr.Oid}",
+                        directory: args[2])
                     .Output()
                     .First(),
                 since:
                     new GitLastMajorUpdateTag(
-                        loggerFactory,
-                        gh.Workspace(),
-                        pr.Oid)
+                        loggerFactory: loggerFactory,
+                        repository: args[2],
+                        before: pr.Oid)
                     .Sha(),
-                repository: gh.Workspace(),
+                repository: args[2],
                 key: gh.Repository(),
                 link: pr.Url,
                 organization: gh.Owner(),
