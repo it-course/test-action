@@ -19,35 +19,37 @@ var gh = new GitHubClient(
     baseBranch: args[3],
     ownerAndRepository: args[0]);
 
-var m = new StabilityMetric(loggerFactory, args[7]);
+var m = new StabilityMetric(loggerFactory, args[4]);
 
-await gh.UpdatePrLabels(
-    m.Rating(
-        new GitDiff(
-            log: loggerFactory,
-            @base:
-                new GitProcess(
-                    loggerFactory,
-                    "git",
-                    $"rev-parse {args[5]}",
-                    gh.Workspace())
-                .Output()
-                .First(),
-            commit:
-                new GitProcess(
-                    loggerFactory,
-                    "git",
-                    $"rev-parse {args[6]}",
-                    gh.Workspace())
-                .Output()
-                .First(),
-            since:
-                new GitLastMajorUpdateTag(
-                    loggerFactory, gh.Workspace(), args[6])
-                .Sha(),
-            repository: gh.Workspace(),
-            key: gh.Repository(),
-            link: $"https://github.com/{gh.OwnerAndRepository()}/pull/{args[4]}",
-            organization: gh.Owner(),
-            createdAt: DateTimeOffset.UtcNow)),
-    int.Parse(args[4]));
+foreach (var pr in await gh.RecentMergedPrs())
+    if (!m.IsCommitApplied(gh.Owner(), gh.Repository(), pr.Oid))
+        m.Apply(
+            new GitDiff(
+                log: loggerFactory,
+                @base:
+                    new GitProcess(
+                        loggerFactory,
+                        "git",
+                        $"rev-parse {pr.Oid}~",
+                        gh.Workspace())
+                    .Output()
+                    .First(),
+                commit:
+                    new GitProcess(
+                        loggerFactory,
+                        "git",
+                        $"rev-parse {pr.Oid}",
+                        gh.Workspace())
+                    .Output()
+                    .First(),
+                since:
+                    new GitLastMajorUpdateTag(
+                        loggerFactory,
+                        gh.Workspace(),
+                        pr.Oid)
+                    .Sha(),
+                repository: gh.Workspace(),
+                key: gh.Repository(),
+                link: pr.Url,
+                organization: gh.Owner(),
+                createdAt: pr.MergedAt!.Value));

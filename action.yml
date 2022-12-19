@@ -29,7 +29,10 @@ runs:
         '${{ github.action_path }}/devrating.sqlite3'
       if: github.event_name == 'pull_request'
       shell: pwsh
-  
+    - run: rm '${{ github.action_path }}/devrating.sqlite3'
+      if: github.event_name == 'pull_request'
+      shell: pwsh
+
     # on push
     - uses: actions/checkout@v3
       if: github.event_name == 'push'
