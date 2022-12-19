@@ -8,14 +8,15 @@ public sealed class StabilityMetric
 {
     private readonly ILoggerFactory loggerFactory;
     private readonly Formula formula = new DefaultFormula();
-    private readonly Database database =
-        new SqliteDatabase(
-            new TransactedDbConnection(
-                new SqliteConnection("Data Source='~/devrating.sqlite3'")));
+    private readonly Database database;
 
-    public StabilityMetric(ILoggerFactory loggerFactory)
+    public StabilityMetric(ILoggerFactory loggerFactory, string database)
     {
         this.loggerFactory = loggerFactory;
+        this.database =
+            new SqliteDatabase(
+                new TransactedDbConnection(
+                    new SqliteConnection($"Data Source='{database}'")));
     }
 
     public bool IsCommitApplied(string organization, string repository, string commit)

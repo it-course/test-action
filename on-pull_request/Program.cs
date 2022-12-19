@@ -19,7 +19,7 @@ var gh = new GitHubClient(
     baseBranch: args[3],
     ownerAndRepository: args[0]);
 
-var m = new StabilityMetric(loggerFactory);
+var m = new StabilityMetric(loggerFactory, args[4]);
 
 foreach (var pr in await gh.RecentMergedPrs())
     if (!m.IsCommitApplied(gh.Owner(), gh.Repository(), pr.Oid))
