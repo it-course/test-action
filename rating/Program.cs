@@ -18,7 +18,7 @@ var gh = new GitHubClient(
     workspace: args[2],
     baseBranch: args[3],
     ownerAndRepository: args[0],
-    prNumber: int.Parse(args[4]));
+    prNumber: -1);
 
 var r = new Ratings(loggerFactory);
 
