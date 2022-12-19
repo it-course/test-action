@@ -37,7 +37,7 @@ runs:
         '${{ github.repository }}' `
         '${{ github.token }}' `
         '${{ github.workspace }}' `
-        '${{ github.base_ref }}'
+        '${{ github.ref_name }}'
       if: github.event_name == 'push'
       shell: pwsh
     - uses: actions/upload-artifact@v3
