@@ -4,23 +4,23 @@ using devrating.sqlite;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
-public sealed class Ratings
+public sealed class StabilityMetric
 {
     private readonly ILoggerFactory loggerFactory;
     private readonly Formula formula = new DefaultFormula();
     private readonly Database database =
         new SqliteDatabase(
             new TransactedDbConnection(
-                new SqliteConnection("Data Source=devrating.sqlite3")));
+                new SqliteConnection("Data Source='~/devrating.sqlite3'")));
 
-    public Ratings(ILoggerFactory loggerFactory)
+    public StabilityMetric(ILoggerFactory loggerFactory)
     {
         this.loggerFactory = loggerFactory;
     }
 
     public bool IsCommitApplied(string organization, string repository, string commit)
     {
-        var logger = loggerFactory.CreateLogger<Ratings>();
+        var logger = loggerFactory.CreateLogger<StabilityMetric>();
 
         database.Instance().Connection().Open();
 
@@ -48,7 +48,7 @@ public sealed class Ratings
 
     public void Apply(Diff diff)
     {
-        var logger = loggerFactory.CreateLogger<Ratings>();
+        var logger = loggerFactory.CreateLogger<StabilityMetric>();
 
         logger.LogInformation(
             new EventId(1461486),
@@ -95,7 +95,7 @@ public sealed class Ratings
 
     public double Rating(Diff diff)
     {
-        var logger = loggerFactory.CreateLogger<Ratings>();
+        var logger = loggerFactory.CreateLogger<StabilityMetric>();
 
         logger.LogInformation(
             new EventId(1146241),

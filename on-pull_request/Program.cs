@@ -17,14 +17,13 @@ var gh = new GitHubClient(
     logger: loggerFactory,
     workspace: args[2],
     baseBranch: args[3],
-    ownerAndRepository: args[0],
-    prNumber: -1);
+    ownerAndRepository: args[0]);
 
-var r = new Ratings(loggerFactory);
+var m = new StabilityMetric(loggerFactory);
 
 foreach (var pr in await gh.RecentMergedPrs())
-    if (!r.IsCommitApplied(gh.Owner(), gh.Repository(), pr.Oid))
-        r.Apply(
+    if (!m.IsCommitApplied(gh.Owner(), gh.Repository(), pr.Oid))
+        m.Apply(
             new GitDiff(
                 log: loggerFactory,
                 @base:

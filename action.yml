@@ -6,18 +6,19 @@ runs:
   steps:
     - uses: actions/cache@v3
       with:
-        path: devrating.sqlite3
-        key: devrating-sqlite3-${{ github.run_id }}
+        path: ~/devrating.sqlite3
+        key: devrating.sqlite3-${{ github.run_id }}
         restore-keys: |
-          devrating-sqlite3-
+          devrating.sqlite3-
 
+    # on pull_request
     - uses: actions/checkout@v3
       if: github.event_name == 'pull_request'
       with:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.sha }}
     - run: |
-        dotnet run --project ${{ github.action_path }}/labels/labels.csproj -- `
+        dotnet run --project ${{ github.action_path }}/on-pull_request/on-pull_request.csproj -- `
         '${{ github.repository }}' `
         '${{ github.token }}' `
         '${{ github.workspace }}' `
@@ -28,12 +29,13 @@ runs:
       if: github.event_name == 'pull_request'
       shell: pwsh
   
+    # on push
     - uses: actions/checkout@v3
       if: github.event_name == 'push'
       with:
         fetch-depth: 0
     - run: |
-        dotnet run --project ${{ github.action_path }}/rating/rating.csproj -- `
+        dotnet run --project ${{ github.action_path }}/on-push/on-push.csproj -- `
         '${{ github.repository }}' `
         '${{ github.token }}' `
         '${{ github.workspace }}' `
@@ -43,8 +45,8 @@ runs:
     - uses: actions/upload-artifact@v3
       if: github.event_name == 'push'
       with:
-        name: devrating-sqlite3
-        path: devrating.sqlite3
+        name: devrating.sqlite3
+        path: ~/devrating.sqlite3
 branding:
   icon: git-pull-request
   color: blue

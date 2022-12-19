@@ -17,13 +17,12 @@ var gh = new GitHubClient(
     logger: loggerFactory,
     workspace: args[2],
     baseBranch: args[3],
-    ownerAndRepository: args[0],
-    prNumber: int.Parse(args[4]));
+    ownerAndRepository: args[0]);
 
-var r = new Ratings(loggerFactory);
+var m = new StabilityMetric(loggerFactory);
 
 await gh.UpdatePrLabels(
-    r.Rating(
+    m.Rating(
         new GitDiff(
             log: loggerFactory,
             @base:
@@ -48,6 +47,7 @@ await gh.UpdatePrLabels(
                 .Sha(),
             repository: gh.Workspace(),
             key: gh.Repository(),
-            link: $"https://github.com/{gh.OwnerAndRepository()}/pull/{gh.PrNumber()}",
+            link: $"https://github.com/{gh.OwnerAndRepository()}/pull/{args[4]}",
             organization: gh.Owner(),
-            createdAt: DateTimeOffset.UtcNow)));
+            createdAt: DateTimeOffset.UtcNow)),
+    int.Parse(args[4]));

@@ -12,19 +12,15 @@ public sealed class GitHubClient
     private readonly string workspace;
     private readonly string baseBranch;
     private readonly string ownerAndRepository;
-    private readonly int number;
     private readonly string owner;
     private readonly string repository;
-    private readonly SizeLabel sizeLabel;
-    private readonly StabilityLabel stabilityLabel;
 
     public GitHubClient(
         string githubToken,
         ILoggerFactory logger,
         string workspace,
         string baseBranch,
-        string ownerAndRepository,
-        int prNumber)
+        string ownerAndRepository)
     {
         this.github = new Octokit.GraphQL.Connection(
             new Octokit.GraphQL.ProductHeaderValue(
@@ -35,7 +31,6 @@ public sealed class GitHubClient
         this.workspace = workspace;
         this.baseBranch = baseBranch;
         this.ownerAndRepository = ownerAndRepository;
-        this.number = prNumber;
         this.owner = ownerAndRepository.Split('/')[0];
         this.repository = ownerAndRepository.Split('/')[1];
         this.githubRest = new Octokit.GitHubClient(
@@ -45,15 +40,12 @@ public sealed class GitHubClient
         {
             Credentials = new Octokit.Credentials(githubToken)
         };
-        this.sizeLabel = new SizeLabel(githubRest, owner, repository, prNumber);
-        this.stabilityLabel = new StabilityLabel(githubRest, owner, repository, prNumber);
     }
 
     public string Workspace() => workspace;
     public string Owner() => owner;
     public string Repository() => repository;
     public string OwnerAndRepository() => ownerAndRepository;
-    public int PrNumber() => number;
 
     public async Task<IEnumerable<PullRequestRecord>> RecentMergedPrs()
     {
@@ -81,10 +73,12 @@ public sealed class GitHubClient
         .Reverse();
     }
 
-    public async Task UpdatePrLabels(double rating)
+    public async Task UpdatePrLabels(
+        double rating,
+        int prNumber)
     {
-        await sizeLabel.Update();
-        await stabilityLabel.Update(rating);
+        await new SizeLabel(githubRest, owner, repository, prNumber).Update();
+        await new StabilityLabel(githubRest, owner, repository, prNumber).Update(rating);
     }
 
     public record PullRequestRecord(string Oid, DateTimeOffset? MergedAt, string Url);
