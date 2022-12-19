@@ -24,8 +24,10 @@ var gh = new GitHubClient(
 
 var r = new Ratings(loggerFactory);
 
+
 foreach (var pr in await gh.RecentMergedPrs())
     r.Apply(pr);
+
 
 if (!bool.Parse(args[7]))
     await gh.UpdatePrLabels(
