@@ -14,7 +14,7 @@ loggerFactory.CreateLogger<Program>().LogInformation(
 
 var gh = new GitHubClient(
     githubToken: args[1],
-    log: loggerFactory,
+    logger: loggerFactory,
     workspace: args[2],
     baseBranch: args[3],
     ownerAndRepository: args[0],

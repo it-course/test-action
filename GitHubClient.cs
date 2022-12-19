@@ -8,7 +8,6 @@ public sealed class GitHubClient
 {
     private readonly Octokit.GraphQL.IConnection github;
     private readonly IGitHubClient githubRest;
-    private readonly string githubToken;
     private readonly ILoggerFactory loggerFactory;
     private readonly string workspace;
     private readonly string baseBranch;
@@ -21,7 +20,7 @@ public sealed class GitHubClient
 
     public GitHubClient(
         string githubToken,
-        ILoggerFactory log,
+        ILoggerFactory logger,
         string workspace,
         string baseBranch,
         string ownerAndRepository,
@@ -32,8 +31,7 @@ public sealed class GitHubClient
                 Assembly.GetExecutingAssembly().GetName().Name,
                 Assembly.GetExecutingAssembly().GetName().Version!.ToString()),
             githubToken);
-        this.githubToken = githubToken;
-        this.loggerFactory = log;
+        this.loggerFactory = logger;
         this.workspace = workspace;
         this.baseBranch = baseBranch;
         this.ownerAndRepository = ownerAndRepository;
