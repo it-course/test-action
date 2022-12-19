@@ -54,34 +54,3 @@ foreach (var pr in await gh.RecentMergedPrs())
                 link: pr.Url,
                 organization: gh.Owner(),
                 createdAt: pr.MergedAt!.Value));
-
-if (!bool.Parse(args[7]))
-    await gh.UpdatePrLabels(
-        r.Rating(
-            new GitDiff(
-                log: loggerFactory,
-                @base:
-                    new GitProcess(
-                        loggerFactory,
-                        "git",
-                        $"rev-parse {args[5]}",
-                        gh.Workspace())
-                    .Output()
-                    .First(),
-                commit:
-                    new GitProcess(
-                        loggerFactory,
-                        "git",
-                        $"rev-parse {args[6]}",
-                        gh.Workspace())
-                    .Output()
-                    .First(),
-                since:
-                    new GitLastMajorUpdateTag(
-                        loggerFactory, gh.Workspace(), args[6])
-                    .Sha(),
-                repository: gh.Workspace(),
-                key: gh.Repository(),
-                link: $"https://github.com/{gh.OwnerAndRepository()}/pull/{gh.PrNumber()}",
-                organization: gh.Owner(),
-                createdAt: DateTimeOffset.UtcNow)));

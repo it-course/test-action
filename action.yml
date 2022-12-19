@@ -4,29 +4,45 @@ author: victorx64
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-        ref: ${{ github.event.pull_request.head.sha }}
     - uses: actions/cache@v3
       with:
         path: devrating.sqlite3
         key: devrating-sqlite3-${{ github.run_id }}
         restore-keys: |
           devrating-sqlite3-
+
+    - uses: actions/checkout@v3
+      if: github.event_name == 'pull_request'
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.sha }}
     - run: |
-        dotnet run --project ${{ github.action_path }}/pull-request-label.csproj -- `
+        dotnet run --project ${{ github.action_path }}/labels/labels.csproj -- `
         '${{ github.repository }}' `
         '${{ github.token }}' `
         '${{ github.workspace }}' `
         '${{ github.base_ref }}' `
         '${{ github.event.pull_request.number }}' `
         '${{ github.event.pull_request.base.sha }}' `
-        '${{ github.event.pull_request.head.sha }}' `
-        '${{ github.event.pull_request.merged }}' 
+        '${{ github.event.pull_request.head.sha }}'
+      if: github.event_name == 'pull_request'
+      shell: pwsh
+  
+    - uses: actions/checkout@v3
+      if: github.event_name == 'push'
+      with:
+        fetch-depth: 0
+    - run: |
+        dotnet run --project ${{ github.action_path }}/rating/rating.csproj -- `
+        '${{ github.repository }}' `
+        '${{ github.token }}' `
+        '${{ github.workspace }}' `
+        '${{ github.base_ref }}' `
+        '${{ github.event.pull_request.number }}'
+      if: github.event_name == 'push'
       shell: pwsh
     - uses: actions/upload-artifact@v3
-      if: github.event.pull_request.merged
+      if: github.event_name == 'push'
       with:
         name: devrating-sqlite3
         path: devrating.sqlite3

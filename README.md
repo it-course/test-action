@@ -30,9 +30,11 @@ name: Update PR labels
 on:
   pull_request:
     branches: [ master, main ]
-    types: [ opened, synchronize, closed ]
+    types: [ opened, synchronize ]
+  push:
+    branches: [ master, main ]
 jobs:
-  pr-size:
+  update-pr-labels:
     runs-on: ubuntu-latest
     steps:
     - uses: victorx64/pr-label@v0
