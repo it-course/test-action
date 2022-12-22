@@ -4,7 +4,6 @@ author: victorx64
 inputs:
   git-pathspec:
     description: Sets `git diff` [<path>...] argument
-    default: []
     required: false
 runs:
   using: "composite"
