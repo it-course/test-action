@@ -31,7 +31,7 @@ runs:
         '${{ github.event.pull_request.base.sha }}' `
         '${{ github.event.pull_request.head.sha }}' `
         '${{ github.action_path }}/devrating.sqlite3' `
-        '${{ inputs.git-pathspec }}'
+        ${{ inputs.git-pathspec }}
       if: github.event_name == 'pull_request'
       shell: pwsh
     - run: rm '${{ github.action_path }}/devrating.sqlite3'
@@ -50,7 +50,7 @@ runs:
         '${{ github.workspace }}' `
         '${{ github.ref_name }}' `
         '${{ github.action_path }}/devrating.sqlite3' `
-        '${{ inputs.git-pathspec }}'
+        ${{ inputs.git-pathspec }}
       if: github.event_name == 'push'
       shell: pwsh
     - uses: actions/upload-artifact@v3
