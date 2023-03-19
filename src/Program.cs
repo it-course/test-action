@@ -47,74 +47,74 @@ var sha = new GitProcess(
 
 foreach (
     var pr in await gh.RecentMergedPrs(
-        mergedAfter: DateTimeOffset.Parse(args[8])
+        mergedAfter: sm.LastWorkCreatedAt(
+            organization: gh.Owner(),
+            repository: gh.Repository()
+        ) ?? DateTimeOffset.Parse(args[8])
     )
 )
 {
-    if (!sm.IsCommitApplied(gh.Owner(), gh.Repository(), pr.Oid))
-    {
-        var oid = new GitProcess(
+    var oid = new GitProcess(
+        log: lf,
+        filename: "git",
+        arguments: new[] {
+            "rev-parse",
+            pr.Oid,
+        },
+        directory: args[2]
+    )
+    .Output()
+    .First();
+
+    var d = new GitDiff(
+        log: lf,
+        @base: new GitProcess(
             log: lf,
             filename: "git",
             arguments: new[] {
                 "rev-parse",
-                pr.Oid,
+                $"{pr.Oid}~",
             },
             directory: args[2]
         )
         .Output()
-        .First();
-
-        var d = new GitDiff(
-            log: lf,
-            @base: new GitProcess(
-                log: lf,
-                filename: "git",
-                arguments: new[] {
-                    "rev-parse",
-                    $"{pr.Oid}~",
-                },
-                directory: args[2]
-            )
-            .Output()
-            .First(),
-            commit: oid,
-            since: new GitLastMajorUpdateTag(
-                loggerFactory: lf,
-                repository: args[2],
-                before: pr.Oid
-            )
-            .Sha(),
+        .First(),
+        commit: oid,
+        since: new GitLastMajorUpdateTag(
+            loggerFactory: lf,
             repository: args[2],
-            key: gh.Repository(),
-            link: pr.Url,
-            organization: gh.Owner(),
-            createdAt: pr.MergedAt!.Value,
-            paths: args[11..]
+            before: pr.Oid
+        )
+        .Sha(),
+        repository: args[2],
+        key: gh.Repository(),
+        link: pr.Url,
+        organization: gh.Owner(),
+        createdAt: pr.MergedAt!.Value,
+        paths: args[11..]
+    );
+
+    if (d.Additions() < uint.Parse(args[7]))
+    {
+        log.LogInformation(
+            new EventId(1770471),
+            "Skipping too small PR: `{PR}`",
+            pr.Url
         );
 
-        if (d.Additions() < uint.Parse(args[7]))
-        {
-            log.LogInformation(
-                new EventId(1770471),
-                "Skipping too small PR: `{PR}`",
-                pr.Url
-            );
+        continue;
+    }
 
-            continue;
-        }
+    sm.Apply(diff: d);
 
-        sm.Apply(diff: d);
+    if (sha.Equals(oid))
+    {
+        sm.Report(
+            diff: d,
+            xpPerTaco: uint.Parse(args[10])
+        )
+        .Write(path: args[5]);
 
-        if (sha.Equals(oid))
-        {
-            sm.Report(
-                diff: d,
-                xpPerTaco: uint.Parse(args[10])
-            )
-            .Write(path: args[5]);
-
-            // TODO: Send HeyTaco API request
-        }
+        // TODO: Send HeyTaco API request
     }
 }

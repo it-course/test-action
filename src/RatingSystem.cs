@@ -22,7 +22,7 @@ public sealed class RatingSystem
         );
     }
 
-    public bool IsCommitApplied(string organization, string repository, string commit)
+    public DateTimeOffset? LastWorkCreatedAt(string organization, string repository)
     {
         var logger = _loggerFactory.CreateLogger<RatingSystem>();
         _database.Instance().Connection().Open();
@@ -32,12 +32,18 @@ public sealed class RatingSystem
         try
         {
             if (!_database.Instance().Present())
-                return false;
+                return null;
 
             return _database.Entities()
             .Works()
-            .ContainsOperation()
-            .Contains(organization, repository, commit);
+            .GetOperation()
+            .Last(
+                organization: organization,
+                repository: repository,
+                after: DateTimeOffset.MinValue
+            )
+            .FirstOrDefault()
+            ?.CreatedAt();
         }
         finally
         {
