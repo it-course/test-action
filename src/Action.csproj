@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="devrating.factory" Version="23.3.1" />
+    <PackageReference Include="devrating.git" Version="23.3.2" />
+    <PackageReference Include="devrating.sqlite" Version="23.3.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
+    <PackageReference Include="Octokit" Version="5.0.2" />
+    <PackageReference Include="Octokit.GraphQL" Version="0.2.0-beta" />
+  </ItemGroup>
+
+</Project>

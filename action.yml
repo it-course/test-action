@@ -1,63 +1,62 @@
-name: Pull request size and stability labels
-description: This action marks PRs with size and estimated stability labels
+name: HeyTaco for PR
+description: Gives 🌮 in HeyTaco for merged PRs
 author: victorx64
 inputs:
-  git-pathspec:
-    description: Sets `git diff` [<path>...] argument
+  hey-taco-token:
+    description: HeyTaco API token
+    required: true
+  season-start:
+    description: Current season start date ("yyyy-MM-dd"). Can be in future.
+    default: "2023-03-20"
     required: false
+  git-pathspec:
+    description: Pattern used to limit paths. See https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec
+    required: false
+  min-additions:
+    description: Required number of additions to count a PR. After update, also set `season-start` to today's date.
+    required: false
+    default: "1"
+  xp-per-taco:
+    description: Taco cost in XP. After update, also set `season-start` to today's date.
+    required: false
+    default: "75"
+
 runs:
   using: "composite"
   steps:
     - uses: actions/cache@v3
+      if: github.event_name == 'push'
       with:
-        path: ${{ github.action_path }}/devrating.sqlite3
-        key: devrating.sqlite3-${{ github.run_id }}
-        restore-keys: |
-          devrating.sqlite3-
-
-    # on pull_request
-    - uses: actions/checkout@v3
-      if: github.event_name == 'pull_request'
-      with:
-        fetch-depth: 0
-        ref: ${{ github.event.pull_request.head.sha }}
-    - run: |
-        dotnet run --project ${{ github.action_path }}/on-pull_request/on-pull_request.csproj -- `
-        '${{ github.repository }}' `
-        '${{ github.token }}' `
-        '${{ github.workspace }}' `
-        '${{ github.base_ref }}' `
-        '${{ github.event.pull_request.number }}' `
-        '${{ github.event.pull_request.base.sha }}' `
-        '${{ github.event.pull_request.head.sha }}' `
-        '${{ github.action_path }}/devrating.sqlite3' `
-        ${{ inputs.git-pathspec }}
-      if: github.event_name == 'pull_request'
-      shell: pwsh
-    - run: rm '${{ github.action_path }}/devrating.sqlite3'
-      if: github.event_name == 'pull_request'
-      shell: pwsh
-
-    # on push
+        path: ${{ github.action_path }}/${{ inputs.season-start }}-history.sqlite3
+        key: ${{ inputs.season-start }}-history.sqlite3
     - uses: actions/checkout@v3
       if: github.event_name == 'push'
       with:
         fetch-depth: 0
     - run: |
-        dotnet run --project ${{ github.action_path }}/on-push/on-push.csproj -- `
+        dotnet run --project ${{ github.action_path }}/src/Action.csproj -- `
         '${{ github.repository }}' `
         '${{ github.token }}' `
         '${{ github.workspace }}' `
         '${{ github.ref_name }}' `
-        '${{ github.action_path }}/devrating.sqlite3' `
+        '${{ github.action_path }}/${{ inputs.season-start }}-history.sqlite3' `
+        '${{ github.action_path }}/leaderboard.md' `
+        '${{ github.sha }}' `
+        '${{ inputs.min-additions }}' `
+        '${{ inputs.season-start }}' `
+        '${{ inputs.hey-taco-token }}' `
+        '${{ inputs.xp-per-taco }}' `
         ${{ inputs.git-pathspec }}
       if: github.event_name == 'push'
       shell: pwsh
     - uses: actions/upload-artifact@v3
       if: github.event_name == 'push'
       with:
-        name: devrating.sqlite3
-        path: ${{ github.action_path }}/devrating.sqlite3
+        name: leaderboard.md
+        path: |
+          ${{ github.action_path }}/${{ inputs.season-start }}-history.sqlite3
+          ${{ github.action_path }}/leaderboard.md
+
 branding:
-  icon: git-pull-request
-  color: blue
+  icon: shopping-cart
+  color: red
