@@ -171,6 +171,7 @@ public sealed class RatingSystem
                         email: a.Email()
                     )
                 )
+                .ToList()
             );
         }
         finally
