@@ -39,12 +39,11 @@ public sealed class Report
         var _content = new StringBuilder();
         _content.AppendLine($"PR: {_link}  ");
         _content.AppendLine($"Author: <{_authorEmail}>  ");
-        _content.AppendLine($"Previous Rating: {_rating:F0}  ");
-        _content.AppendLine($"XP: +{_earnedXp}  ");
-        _content.AppendLine($"XP before next taco: {_xpBeforeNextTaco}  ");
-
+        _content.AppendLine($"Rating before merge: {_rating:F0}  ");
+        _content.AppendLine($"Earned XP: +{_earnedXp}  ");
         if (_earnedTacos > 0)
-            _content.AppendLine($"🌮 × {_earnedTacos} taco(s) earned  ");
+            _content.AppendLine($"🎉 🌮 × {_earnedTacos} taco(s) earned 🎉  ");
+        _content.AppendLine($"XP before next taco: {_xpBeforeNextTaco}  ");
 
         _content.AppendLine();
 
