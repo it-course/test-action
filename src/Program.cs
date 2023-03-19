@@ -9,6 +9,7 @@ var lf = LoggerFactory.Create(
     builder => builder
     .AddFilter("Microsoft", LogLevel.Warning)
     .AddFilter("System", LogLevel.Warning)
+    .AddConsole()
 );
 
 var log = lf.CreateLogger<Program>();
