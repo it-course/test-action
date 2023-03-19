@@ -172,9 +172,9 @@ public sealed class RatingSystem
                         .Entities()
                         .Ratings()
                         .GetOperation()
-                        .RatingOf(a.Id())
+                        .RatingOf(author.Id())
                         .Value(),
-                        email: a.Email()
+                        email: author.Email()
                     )
                 )
                 .ToList()
