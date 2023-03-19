@@ -28,7 +28,9 @@ runs:
       if: github.event_name == 'push'
       with:
         path: ${{ github.action_path }}/${{ inputs.season-start }}-history.sqlite3
-        key: ${{ inputs.season-start }}-history.sqlite3
+        key: ${{ inputs.season-start }}-history.sqlite3-${{ github.run_id }}
+        restore-keys: |
+          ${{ inputs.season-start }}-history.sqlite3-
     - uses: actions/checkout@v3
       if: github.event_name == 'push'
       with:
