@@ -38,10 +38,11 @@ public sealed class GitHubClient
 
         _loggerFactory.CreateLogger<GitHubClient>().LogInformation(
             new EventId(1880477),
-            $"Last merged PRs search query: `{q}`"
+            "Last merged PRs search query: `{q}`",
+            q
         );
 
-        return (
+        var r = (
             await new Octokit.GraphQL.Connection(
                 new Octokit.GraphQL.ProductHeaderValue(
                     Assembly.GetExecutingAssembly().GetName().Name,
@@ -63,7 +64,17 @@ public sealed class GitHubClient
                 )
                 .Compile()
             )
-        ).OrderBy(pr => pr.MergedAt!);
+        )
+        .OrderBy(pr => pr.MergedAt!)
+        .ToArray();
+
+        _loggerFactory.CreateLogger<GitHubClient>().LogInformation(
+            new EventId(1380246),
+            "Last merged PRs count: `{count}`",
+            r.Length
+        );
+
+        return r;
     }
 
     public record PullRequestRecord(string Oid, DateTimeOffset? MergedAt, string Url);

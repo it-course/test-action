@@ -54,6 +54,12 @@ foreach (
     )
 )
 {
+    log.LogInformation(
+        new EventId(1325093),
+        "Analyzing PR: `{PR}`",
+        pr.Url
+    );
+
     var oid = new GitProcess(
         log: lf,
         filename: "git",
