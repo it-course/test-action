@@ -44,7 +44,7 @@ public sealed class Report
         _content.AppendLine($"XP before next taco: {_xpBeforeNextTaco}  ");
 
         if (_earnedTacos > 0)
-            _content.AppendLine($"{string.Concat(Enumerable.Repeat("🌮", (int)_earnedTacos))} taco earned  ");
+            _content.AppendLine($"🌮 × {_earnedTacos} taco(s) earned  ");
 
         _content.AppendLine();
 
