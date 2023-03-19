@@ -40,7 +40,7 @@ runs:
         '${{ github.workspace }}' `
         '${{ github.ref_name }}' `
         '${{ github.action_path }}/${{ inputs.season-start }}-history.sqlite3' `
-        '${{ github.action_path }}/leaderboard.md' `
+        '${{ github.action_path }}/taco-report.md' `
         '${{ github.sha }}' `
         '${{ inputs.min-additions }}' `
         '${{ inputs.season-start }}' `
@@ -52,10 +52,10 @@ runs:
     - uses: actions/upload-artifact@v3
       if: github.event_name == 'push'
       with:
-        name: leaderboard.md
+        name: taco-report.md
         path: |
           ${{ github.action_path }}/${{ inputs.season-start }}-history.sqlite3
-          ${{ github.action_path }}/leaderboard.md
+          ${{ github.action_path }}/taco-report.md
 
 branding:
   icon: shopping-cart

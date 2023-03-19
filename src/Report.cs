@@ -42,7 +42,7 @@ public sealed class Report
         _content.AppendLine($"Rating before merge: {_rating:F0}  ");
         _content.AppendLine($"Earned XP: +{_earnedXp}  ");
         if (_earnedTacos > 0)
-            _content.AppendLine($"🎉 🌮 × {_earnedTacos} taco(s) earned 🎉  ");
+            _content.AppendLine($"🎉 Earned 🌮 × {_earnedTacos} taco(s) 🎉  ");
         _content.AppendLine($"XP before next taco: {_xpBeforeNextTaco}  ");
 
         _content.AppendLine();
