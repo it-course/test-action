@@ -1,4 +1,4 @@
-using devrating.factory;
+﻿using devrating.factory;
 
 public sealed class Experience
 {
@@ -9,7 +9,7 @@ public sealed class Experience
         _formula = formula;
     }
 
-    public uint Gain(double rating)
+    public uint Growth(double rating)
     {
         return (uint)(_formula.WinProbabilityOfA(rating, _formula.DefaultRating()) * 100d);
     }

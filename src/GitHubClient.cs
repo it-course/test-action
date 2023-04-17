@@ -7,7 +7,7 @@ using Octokit.GraphQL.Model;
 
 public sealed class GitHubClient
 {
-    private readonly ILoggerFactory _loggerFactory;
+    private readonly ILoggerFactory _log;
     private readonly string _githubToken;
     private readonly string _baseBranch;
     private readonly string _owner;
@@ -23,7 +23,7 @@ public sealed class GitHubClient
         string ownerAndRepository)
     {
         _githubToken = githubToken;
-        _loggerFactory = log;
+        _log = log;
         _baseBranch = baseBranch;
         _owner = ownerAndRepository.Split('/')[0];
         _repository = ownerAndRepository.Split('/')[1];
@@ -36,7 +36,7 @@ public sealed class GitHubClient
         var q = $"repo:{_owner}/{_repository} base:{_baseBranch} type:pr " +
             $"merged:>{mergedAfter:O} sort:updated-desc";
 
-        _loggerFactory.CreateLogger<GitHubClient>().LogInformation(
+        _log.CreateLogger<GitHubClient>().LogInformation(
             new EventId(1880477),
             "Last merged PRs search query: `{q}`",
             q
@@ -68,7 +68,7 @@ public sealed class GitHubClient
         .OrderBy(pr => pr.MergedAt!)
         .ToArray();
 
-        _loggerFactory.CreateLogger<GitHubClient>().LogInformation(
+        _log.CreateLogger<GitHubClient>().LogInformation(
             new EventId(1380246),
             "Last merged PRs count: `{count}`",
             r.Length

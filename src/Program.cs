@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using devrating.factory;
 using devrating.git;
@@ -38,7 +38,7 @@ var sha = new GitProcess(
     arguments: new[]
     {
         "rev-parse",
-        args[6],
+        args[5],
     },
     directory: args[2]
 )
@@ -50,7 +50,7 @@ foreach (
         mergedAfter: sm.LastWorkCreatedAt(
             organization: gh.Owner(),
             repository: gh.Repository()
-        ) ?? DateTimeOffset.Parse(args[8])
+        ) ?? DateTimeOffset.Parse(args[7])
     )
 )
 {
@@ -97,10 +97,10 @@ foreach (
         link: pr.Url,
         organization: gh.Owner(),
         createdAt: pr.MergedAt!.Value,
-        paths: args[11..]
+        paths: args[10..]
     );
 
-    if (d.Additions() < uint.Parse(args[7]))
+    if (d.Additions() < uint.Parse(args[6]))
     {
         log.LogInformation(
             new EventId(1770471),
@@ -114,13 +114,12 @@ foreach (
     sm.Apply(diff: d);
 
     if (sha.Equals(oid))
-    {
-        sm.Report(
+        await sm.GiveTaco(
             diff: d,
-            xpPerTaco: uint.Parse(args[10])
-        )
-        .Write(path: args[5]);
-
-        // TODO: Send HeyTaco API request
-    }
+            xpPerTaco: uint.Parse(args[9]),
+            heyTacoClient: new HeyTacoClient(
+                token: args[8],
+                log: lf
+            )
+        );
 }

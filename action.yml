@@ -1,4 +1,4 @@
-name: HeyTaco for PR
+﻿name: HeyTaco for PR
 description: Gives 🌮 in HeyTaco for merged PRs
 author: victorx64
 inputs:
@@ -7,7 +7,7 @@ inputs:
     required: true
   season-start:
     description: Current season start date ("yyyy-MM-dd"). Can be in future.
-    default: "2023-03-20"
+    default: "2023-03-27"
     required: false
   git-pathspec:
     description: Pattern used to limit paths. See https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec
@@ -27,10 +27,10 @@ runs:
     - uses: actions/cache@v3
       if: github.event_name == 'push'
       with:
-        path: ${{ github.action_path }}/${{ inputs.season-start }}-history.sqlite3
-        key: ${{ inputs.season-start }}-history.sqlite3-${{ github.run_id }}
+        path: ${{ github.action_path }}/devrating.sqlite3
+        key: season-${{ inputs.season-start }}.sqlite3-${{ github.run_id }}
         restore-keys: |
-          ${{ inputs.season-start }}-history.sqlite3-
+          season-${{ inputs.season-start }}.sqlite3-
     - uses: actions/checkout@v3
       if: github.event_name == 'push'
       with:
@@ -41,8 +41,7 @@ runs:
         '${{ github.token }}' `
         '${{ github.workspace }}' `
         '${{ github.ref_name }}' `
-        '${{ github.action_path }}/${{ inputs.season-start }}-history.sqlite3' `
-        '${{ github.action_path }}/taco-report.md' `
+        '${{ github.action_path }}/devrating.sqlite3' `
         '${{ github.sha }}' `
         '${{ inputs.min-additions }}' `
         '${{ inputs.season-start }}' `
@@ -56,8 +55,7 @@ runs:
       with:
         name: taco-report.md
         path: |
-          ${{ github.action_path }}/${{ inputs.season-start }}-history.sqlite3
-          ${{ github.action_path }}/taco-report.md
+          ${{ github.action_path }}/devrating.sqlite3
 
 branding:
   icon: shopping-cart

@@ -7,13 +7,13 @@ using Microsoft.Extensions.Logging;
 
 public sealed class RatingSystem
 {
-    private readonly ILoggerFactory _loggerFactory;
+    private readonly ILoggerFactory _log;
     private readonly Formula _formula;
     private readonly Database _database;
 
     public RatingSystem(ILoggerFactory log, Formula formula, string database)
     {
-        _loggerFactory = log;
+        _log = log;
         _formula = formula;
         _database = new SqliteDatabase(
             new TransactedDbConnection(
@@ -24,7 +24,7 @@ public sealed class RatingSystem
 
     public DateTimeOffset? LastWorkCreatedAt(string organization, string repository)
     {
-        var logger = _loggerFactory.CreateLogger<RatingSystem>();
+        var logger = _log.CreateLogger<RatingSystem>();
         _database.Instance().Connection().Open();
 
         using var transaction = _database.Instance().Connection().BeginTransaction();
@@ -54,7 +54,7 @@ public sealed class RatingSystem
 
     public void Apply(Diff diff)
     {
-        var logger = _loggerFactory.CreateLogger<RatingSystem>();
+        var logger = _log.CreateLogger<RatingSystem>();
 
         logger.LogInformation(
             new EventId(1461486),
@@ -86,7 +86,7 @@ public sealed class RatingSystem
                        ratings,
                        authorFactory),
                    new DefaultRatingFactory(
-                       _loggerFactory,
+                       _log,
                        authorFactory,
                        ratings,
                        _formula
@@ -108,11 +108,11 @@ public sealed class RatingSystem
         }
     }
 
-    public Report Report(Diff diff, uint xpPerTaco)
+    public async Task GiveTaco(Diff diff, uint xpPerTaco, HeyTacoClient heyTacoClient)
     {
-        var log = _loggerFactory.CreateLogger<RatingSystem>();
+        var log = _log.CreateLogger<RatingSystem>();
 
-        log.LogInformation(new EventId(1146241), $"Diff: `{diff.ToJson()}`");
+        log.LogInformation(new EventId(1150256), $"Diff: `{diff.ToJson()}`");
 
         _database.Instance().Connection().Open();
 
@@ -124,7 +124,6 @@ public sealed class RatingSystem
             var w = diff.RelatedWork(_database.Entities().Works());
             var a = w.Author();
             var ur = w.UsedRating();
-            var r = ur.Id().Filled() ? ur.Value() : _formula.DefaultRating();
             var xp = _database
             .Entities()
             .Works()
@@ -134,8 +133,7 @@ public sealed class RatingSystem
                 (work) =>
                 {
                     var wur = work.UsedRating();
-                    return experience
-                    .Gain(
+                    return experience.Growth(
                         rating: wur
                         .Id()
                         .Filled()
@@ -145,40 +143,12 @@ public sealed class RatingSystem
                 }
             );
 
-            var earnedXp = experience.Gain(rating: r);
-            var tacosBefore = (xp - earnedXp) / xpPerTaco;
-            var tacosAfter = xp / xpPerTaco;
-
-            return new Report(
-                log: _loggerFactory,
-                link: w.Link(),
-                authorEmail: a.Email(),
-                rating: r,
-                earnedXp: earnedXp,
-                xpBeforeNextTaco: (uint)(xpPerTaco - (xp % xpPerTaco)),
-                earnedTacos: (uint)(tacosAfter - tacosBefore),
-                leaderboard: _database
-                .Entities()
-                .Authors()
-                .GetOperation()
-                .Top(
-                    a.Organization(),
-                    a.Repository(),
-                    DateTimeOffset.MinValue
-                )
-                .Select(
-                    (author) => (
-                        rating: _database
-                        .Entities()
-                        .Ratings()
-                        .GetOperation()
-                        .RatingOf(author.Id())
-                        .Value(),
-                        email: author.Email()
-                    )
-                )
-                .ToList()
+            var earnedXp = experience.Growth(
+                rating: ur.Id().Filled() ? ur.Value() : _formula.DefaultRating()
             );
+            var earnedTacos = (uint)(xp / xpPerTaco - (xp - earnedXp) / xpPerTaco);
+            if (earnedTacos > 0)
+                await heyTacoClient.GiveTaco(a.Email(), earnedTacos);
         }
         finally
         {
